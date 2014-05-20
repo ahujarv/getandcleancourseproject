@@ -1,14 +1,49 @@
-runAnalysis <- function() {
-        #Download zip file
+## This function
+##      1. takes path to directory containing data files as input.  If not
+##      provided, it defaults it to 'data/UCI HAR Dataset' in working directory.
+##      If this directory is not present in working directory and path
+##      to where directory 'UCI HAR Dataset' is not provided, it will 
+##      error out.
+##      2. downloads the required zip file if zip file is not present in directory
+##      'data' in the working directory.  It will download it only one time.  
+##      The zip file needs be unzipped manually in the working directory 
+##      for default to work, otherwise unzip the file in any directory and 
+##      provide complete path to the directory 'UCI HAR Dataset' 
+##      3. calls function tidyDataset() to obtain tidy dataset that has been
+##      created by series of other functions that extract, merge and label
+##      the dataset appropriately.
+##      4. writes final tidy dataset to output file named tidydataset.txt in
+##      direcotry 'data' under working directory
+
+runAnalysis <- function(path = "data/UCI HAR Dataset") {
+        #Download zip file if needed
         downloadFile()
+        
+        #Tidy the dataset and write it to a file
+        finalDataset <- tidyTrainTest(path)
+        write.table(finalDataset, file="data/tidydata.txt",quote=FALSE,col.names=TRUE)
 }
 
-# calAverage <- function()
+## This function takes path to the directory having data files as input and
+## returns a tidy dataset.
+## It performs following:
+##      1. Melts the dataset to get average and mean values for each subject 
+##      for each acitvity
+##      2. Casts dataset applying 'mean' function to each meansurement to 
+##      calculate average of each measurement for each subject for each acitivity
+##      3. Label each column appropriately
 
-#shapeTrainTest <- function() {
+tidyTrainTest <- function(path) {
+        library(reshape2)
         #melt mean and standard dev values
-        
-        #cast to obtain mean and std dev in their own columns
+        mergedDataset <- mergeTrainTest(path)
+        meltDataset <- melt(mergedDataset, id=c("subject","activity"))
+        tidyDataset <- dcast(meltDataset, subject+activity ~ variable, mean)
+        nonIdCols <- colnames(tidyDataset[3:68])
+        nonIdAveCols <- sapply(nonIdCols, function(x) 
+                paste("each", "subject","activity", "average",x, sep="-"))
+        colnames(tidyDataset) <- c(colnames(tidyDataset[1:2]), as.vector(nonIdAveCols))
+        tidyDataset
 }
 
 ## This function gets the two data frames; train and test and applies
@@ -41,7 +76,7 @@ prepareDataset <- function(path, dataType) {
 
 ## This function performs following:
 ##      1. reads feature label file (features.txt) into a dataframe
-##      2. returns a vector containing lables for mean and std dev only
+##      2. returns a data frame containing lables for mean and std dev only
 getFeatureLabels <- function(path) {
         ## Use input path to get feature label file (features.txt)
         featureLabelsFile <- paste(path, 
@@ -51,8 +86,11 @@ getFeatureLabels <- function(path) {
         selectFeatureLabels <- featureLabelsDf[grep("*mean\\(\\)*|*std\\(\\)*", 
                                         featureLabelsDf$V2),]
         featureLabelIndex <- as.vector(selectFeatureLabels$V1)
-        featureLabels <- sapply(featureLabelIndex, 
-                                function(x) paste("V", as.character(x), sep = ""))
+        featureLabelsCode <- sapply(featureLabelIndex, 
+                                    function(x) paste("V", as.character(x), 
+                                                      sep = ""))
+        featureLabels <- cbind(V1=featureLabelsCode, 
+                               V2=selectFeatureLabels["V2"])
         featureLabels
 }
 
@@ -71,7 +109,8 @@ prepareFeatures <- function(path, dataType) {
         featureColumnHeaders <- getFeatureLabels(path)
         
         ## Subset to get feature values only for mean() and std()
-        featureMeanStdDf <- featureDf[,featureColumnHeaders]
+        featureMeanStdDf <- featureDf[,featureColumnHeaders$V1]
+        colnames(featureMeanStdDf) <- as.vector(featureColumnHeaders$V2)
         featureMeanStdDf
 }
 
@@ -102,7 +141,7 @@ prepareActivities <- function(path, dataType) {
         activities <- activitiesWithLabels["V2"]
         
         ## Name the column with descriptive value: Activity
-        colnames(activities) <- "Activity"
+        colnames(activities) <- "activity"
         activities
 }
 
@@ -126,17 +165,21 @@ prepareSubjects <- function(path, dataType) {
         subjectFile <- paste(subjectDirectory, 
                              "/", "subject_", dataType, ".txt", sep="")
         subjectDf <- read.table(subjectFile)
-        colnames(subjectDf) <- "Subject"
+        colnames(subjectDf) <- "subject"
         subjectDf
 }
 
 ## This function downloads the file from web if it does not already exist.
 downloadFile <- function() {
+        ## Create direcotry data it does not exist in working directory
+        if(!file.exists("data")) {
+                dir.create("data")
+        }
         #Download the file if it does not already exist
         fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
         if(!file.exists("data/getdata-projectfiles-UCI HAR Dataset.zip")) {
                 download.file(fileUrl, 
-                              destfile="getdata-projectfiles-UCI HAR Dataset.zip")
+                              destfile="data/getdata-projectfiles-UCI HAR Dataset.zip")
         }
         downloadDate <- date()
 }
