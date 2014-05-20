@@ -9,7 +9,7 @@
 ##      The zip file needs be unzipped manually in the working directory 
 ##      for default to work, otherwise unzip the file in any directory and 
 ##      provide complete path to the directory 'UCI HAR Dataset' 
-##      3. calls function tidyDataset() to obtain tidy dataset that has been
+##      3. calls function tidyTrainTest() to obtain tidy dataset that has been
 ##      created by series of other functions that extract, merge and label
 ##      the dataset appropriately.
 ##      4. writes final tidy dataset to output file named tidydataset.txt in
