@@ -27,6 +27,10 @@ source("run_analysis.R")
 path <- full path to the directory where UCI HAR Dataset is
 runAnalysis(path)
 ```
+After running the script two text files will be created in working directory:
+1. mergeddata.txt : containing merged Train and Test dataset
+2. tidydata.txt : containing the final tidy dataset
+
 ## Description
 
 All the functions mentioned below are included in this script:
