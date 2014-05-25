@@ -14,18 +14,27 @@ Create one R script called run_analysis.R that does the following:
 5. Creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 ## Instructions
-The main script to run is run_analysis.R.  All the functions mentioned below are included in this script:
+The main script to run is run_analysis.R. 
 
-1. runAnalysis(path) : This function is the main function.  It takes following parameters:
-    1. path for directory where the data files are as input.  The input parameter is defaulted to read from the directory **UCI HAR Datasets** in the working directory if not provided. 
-This function downlads the zip file if not already present locally, calls a function to create final clean dataframe and writes the resulting dataframe to a file named *tidydata.txt* in directory *data* in working directory.  It calls following functions to achieve this:
-1. downloadFile(path) : This function:
-    1. creates directory *data* in working directory if not already present
-    2. downloads the input zip file if not already present in directory named *data* in working directory
-    3. stores the date when file is downloaded in a variable
-2. tidyTrainTest(path) : This function takes path to the directory where the files are as input.  It merges the *Train* and *Test* datasets and organizes the dataset to include columns for means of average and standard deviation.  It calls following function to merge the datasets.
-    1. mergeTrainTest(path) : This function prepares *Train* and *Test* datasets individually and merges both of them.  It calls following function:
-        1. prepareDataSet(path, dataType) : This function prepares given data set.  It gets features, activities and subjects for given data type (*Train* or *Test*) and binds them to create the required dataset.  It takes two arguments; path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset.  It calls following functions:
-            1. prepareFeatures(path, dataType) : This function takes path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset as arguments.  It reads file into dataframe, gets column labels for columns to be considered and subsets the dataframe to retain only mean and standard deviation values.  It calls function *getFeatureLabels(path)* to read file *feature.txt* files to get dataframe containing mean and standard deviation labels only.
-            2. prepareActivities() : This function takes path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset as arguments. It reads activity values in a dataframe, merges activities with corresponding labels and returns a dataframe containing activities replaced by their corresponding labels.  It calls function *getActivityLabels(path)* to read file *activity_labels.txt* and returns dataframe of activity labels.
-            3. prepareSubjects(path, dataType) : This function takes path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset as arguments.  It reads the appropriate file and returns a dataframe of subjects with descriptive column name.
+If the UCI HAR Dataset is in working directory:
+```{r}
+source("run_analysis.R")
+runAnalysis()
+```
+If the UCI HAR Dataset is not in your working directory:
+```{r}
+source("run_analysis.R")
+path <- full path to the directory where UCI HAR Dataset is
+runAnalysis(path)
+```
+## Description
+
+All the functions mentioned below are included in this script:
+
+1. runAnalysis(path) : This function is the main function.  It calls following functions to achieve this:
+    1. tidyTrainTest(path) : This function takes path to the directory where the files are as input.  It merges the *Train* and *Test* datasets and organizes the dataset to include columns for means of average and standard deviation.  It calls following function to merge the datasets.
+        1. mergeTrainTest(path) : This function prepares *Train* and *Test* datasets individually and merges both of them.  It calls following function:
+            1. prepareDataSet(path, dataType) : This function prepares given data set.  It gets features, activities and subjects for given data type (*Train* or *Test*) and binds them to create the required dataset.  It takes two arguments; path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset.  It calls following functions:
+                1. prepareFeatures(path, dataType) : This function takes path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset as arguments.  It reads file into dataframe, gets column labels for columns to be considered and subsets the dataframe to retain only mean and standard deviation values.  It calls function *getFeatureLabels(path)* to read file *feature.txt* files to get dataframe containing mean and standard deviation labels only.
+                2. prepareActivities() : This function takes path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset as arguments. It reads activity values in a dataframe, merges activities with corresponding labels and returns a dataframe containing activities replaced by their corresponding labels.  It calls function *getActivityLabels(path)* to read file *activity_labels.txt* and returns dataframe of activity labels.
+                3. prepareSubjects(path, dataType) : This function takes path for directory where the data files are and data set type ; *Train* or *Type* to decide which file to use to create the dataset as arguments.  It reads the appropriate file and returns a dataframe of subjects with descriptive column name.
