@@ -4,24 +4,16 @@
 ##      If this directory is not present in working directory and path
 ##      to where directory 'UCI HAR Dataset' is not provided, it will 
 ##      error out.
-##      2. downloads the required zip file if zip file is not present in directory
-##      'data' in the working directory.  It will download it only one time.  
-##      The zip file needs be unzipped manually in the working directory 
-##      for default to work, otherwise unzip the file in any directory and 
-##      provide complete path to the directory 'UCI HAR Dataset' 
-##      3. calls function tidyTrainTest() to obtain tidy dataset that has been
+##      2. calls function tidyTrainTest() to obtain tidy dataset that has been
 ##      created by series of other functions that extract, merge and label
 ##      the dataset appropriately.
-##      4. writes final tidy dataset to output file named tidydataset.txt in
-##      direcotry 'data' under working directory
+##      3. writes final tidy dataset to output file named tidydataset.txt in
+##      working directory
 
-runAnalysis <- function(path = "data/UCI HAR Dataset") {
-        #Download zip file if needed
-        downloadFile()
-        
+runAnalysis <- function(path = "UCI HAR Dataset") {
         #Tidy the dataset and write it to a file
         finalDataset <- tidyTrainTest(path)
-        write.table(finalDataset, file="data/tidydata.txt",quote=FALSE,col.names=TRUE)
+        write.table(finalDataset, file="tidydata.txt",quote=FALSE,col.names=TRUE)
 }
 
 ## This function takes path to the directory having data files as input and
@@ -32,11 +24,16 @@ runAnalysis <- function(path = "data/UCI HAR Dataset") {
 ##      2. Casts dataset applying 'mean' function to each meansurement to 
 ##      calculate average of each measurement for each subject for each acitivity
 ##      3. Label each column appropriately
+##      3. writes merged Train and Test dataset to output file named 
+##      mergeddata.txt in working directory
 
 tidyTrainTest <- function(path) {
         library(reshape2)
         #melt mean and standard dev values
         mergedDataset <- mergeTrainTest(path)
+        #Write merged dataset to a file
+        write.table(mergedDataset, file="mergeddata.txt",quote=FALSE,
+                    col.names=TRUE)
         meltDataset <- melt(mergedDataset, id=c("subject","activity"))
         tidyDataset <- dcast(meltDataset, subject+activity ~ variable, mean)
         nonIdCols <- colnames(tidyDataset[3:68])
@@ -167,19 +164,4 @@ prepareSubjects <- function(path, dataType) {
         subjectDf <- read.table(subjectFile)
         colnames(subjectDf) <- "subject"
         subjectDf
-}
-
-## This function downloads the file from web if it does not already exist.
-downloadFile <- function() {
-        ## Create direcotry data it does not exist in working directory
-        if(!file.exists("data")) {
-                dir.create("data")
-        }
-        #Download the file if it does not already exist
-        fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
-        if(!file.exists("data/getdata-projectfiles-UCI HAR Dataset.zip")) {
-                download.file(fileUrl, 
-                              destfile="data/getdata-projectfiles-UCI HAR Dataset.zip")
-        }
-        downloadDate <- date()
 }
