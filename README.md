@@ -24,4 +24,8 @@ This function downlads the zip file if not already present locally, calls a func
     2. downloads the input zip file if not already present in directory named *data* in working directory
     3. stores the date when file is downloaded in a variable
 2. tidyTrainTest() : This function takes path to the directory where the files are as input.  It merges the *Train* and *Test* datasets and organizes the dataset to include columns for means of average and standard deviation.  It calls following function to merge the datasets.
-    1. mergeTrainTest : 
+    1. mergeTrainTest() : This function prepares *Train* and *Test* datasets individually and merges both of them.  It calls following function:
+        1. prepareDataSet : This function prepares given data set.  It gets features, activities and subjects for given data type (*Train* or *Test*) and binds them to create the required dataset.  It takes follwoing arguments:
+            1. path for directory where the data files are
+            2. data set type ; *Train* or *Type* to decide which file to use to create the dataset
+        It calls following functions:
